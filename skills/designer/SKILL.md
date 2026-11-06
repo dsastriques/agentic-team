@@ -77,11 +77,18 @@ Default breakpoints for web: mobile 390, tablet 768, desktop 1440 (and verify re
 ## Figma workspace
 
 ### Connection and preflight
-1. Load the Figma tools with ToolSearch (query `figma`). If none are connected, call SearchMcpRegistry `["figma", "design"]` and SuggestConnectors, tell the owner that writing needs the Figma connector, and continue with what you can do (requirements mapping, specs in the repo, HTML mockups).
-2. Writing to the canvas needs the **remote** Figma MCP server's `use_figma` tool, a Professional / Organization / Enterprise plan, a Full seat (a Dev seat only writes to drafts) and edit access to the file. Call `whoami` to check. If `use_figma` is not in the tool list, say so plainly, produce the outputs in the repo and as HTML mockups, and note that the owner can run this skill from a client whose Figma connection exposes the write tools (e.g. Claude Code with the remote server).
-3. If a `figma-use` skill (any prefix, e.g. `figma:figma-use`) is listed, load it with the Skill tool before the first `use_figma` call; likewise `figma-generate-library` for System mode and `figma-generate-design` for Design mode when listed. They hold the Plugin API workflow; follow them where they are more specific than this skill.
-4. Files: use `figma_library_file` and `figma_product_file` from the config. If one is "create", make it with `create_new_file` (it lands in the owner's drafts), then ask the owner to move it into `figma_project` and, for the library, to publish it; record the URLs in the config. Never write to a file that isn't named in the config or the request.
-5. Before changing a file, read its structure (`get_metadata` with no node id lists pages) and search what exists (`search_design_system`, `get_libraries`, `get_variable_defs`). Build on existing variables and components; never duplicate them.
+1. **Load the tools in one batch**: ToolSearch `select:` with the Figma tools you need (`whoami`, `create_session`, `get_figma_skill`, `use_figma`, `get_metadata`, `get_screenshot`, `search_design_system`, `get_libraries`, `get_variable_defs`, `create_new_file`, `upload_assets`, `generate_image`, `generate_diagram`, `add_code_connect_map`; names may carry a server prefix such as `mcp__Figma__`). If no Figma tools exist, call SearchMcpRegistry `["figma", "design"]` and SuggestConnectors, tell the owner that building in Figma needs the Figma connector, and continue with what you can do (requirements mapping, specs in the repo, HTML mockups).
+2. **Check access** with `whoami`. Writing to the canvas needs a Professional, Organization or Enterprise plan, a Full seat (a Dev seat writes to drafts only) and edit access to the file. If the plan or seat falls short, tell the owner exactly what is missing (e.g. "Starter plan with a View seat: upgrade to Professional with a Full seat"), then try once in a draft file: if `use_figma` is refused, fall back to the repo outputs and HTML mockups and stop asking about it.
+3. **Load Figma's skills before writing.** They are mandatory, not optional:
+   - `figma-use` before every `use_figma` call (Plugin API rules);
+   - `figma-generate-library` with it in System mode (variables, components, variants);
+   - `figma-generate-design` with it in Design mode (screens and composed views);
+   - `figma-create-new-file` before `create_new_file`; `figma-generate-diagram` before `generate_diagram`; `figma-design-to-code` before `get_design_context`.
+
+   Load them with the Skill tool when listed (e.g. `figma:figma-use`); otherwise read them with `get_figma_skill` (`skill://figma/<name>/SKILL.md`, references as `skill://figma/<name>/references/<path>`), including the references they point to (gotchas, component, variable and text-style patterns). Pass the skill names in every `use_figma` call's `skillNames` (prefix `resource:` when read through `get_figma_skill`, e.g. `resource:figma-use,resource:figma-generate-design`). Where those skills are more specific than this one about the Plugin API, follow them.
+4. **Files.** Use `figma_library_file` and `figma_product_file` from the config; take the file key from the URL (`figma.com/design/<fileKey>/…`, a branch URL's `branchKey`; `node-id=12-34` → `12:34`). If one is "create", make it with `create_new_file` (it lands in the owner's drafts), then ask the owner to move it into `figma_project` and, for the library, to publish it; record the URLs in the config. Never write to a file that isn't named in the config or the request.
+5. **Session.** Once the file key is known, call `create_session` with the key and a short task description, before any other file tool, read-only work included. Reuse its `sessionId` on every later call for the same task, also across the library and product files; start a new session only for separate work.
+6. **Inspect before creating.** Read the file's pages and conventions with a read-only `use_figma` (or `get_metadata`), list existing variables, styles and components (one inventory per call), and search libraries with `search_design_system` and `get_libraries`. Build on what exists and match its naming; never duplicate variables or components.
 
 ### Library file structure
 Pages: `Cover` · `Foundations` (variables documented visually, type, spacing, grids, elevation, icons) · `Components` (one section per component) · `Patterns` (documented compositions) · `Changelog`.
@@ -97,14 +104,15 @@ Variable collections:
 Pages: `Cover` · `Flows` (one section per flow, see Design mode) · `Screens` (every screen at every breakpoint, grouped in sections per area) · `Flow maps` (FigJam diagrams or state diagrams) · `Archive`.
 
 ### Build rules for everything you create
-- **Auto layout everywhere** (no absolute positioning except overlays and decorative layers). Resizing set deliberately: hug / fill / fixed, min and max widths, so the layout behaves like flexbox and the FE can read it directly.
-- **Variables only**: every fill, stroke, gap, padding, radius and text style is bound to a variable or style. No hard-coded hex or pixel values; a missing value is a new token proposal.
-- **Instances only** in screens: every UI element is an instance of a library component with its properties set; no detached instances, no look-alike frames.
+- **Auto layout everywhere** (`figma.createAutoLayout()`; no absolute positioning except overlays and decorative layers). Resizing set deliberately (hug / fill / fixed, min and max widths) so the layout behaves like flexbox and the FE can read it directly; use grid layout for real grids (card grids, dashboards).
+- **Variables only**: every fill, stroke, gap, padding, radius and text style is bound to a variable or style. No hard-coded hex or pixel values; a missing value is a new token proposal. Every variable gets explicit scopes and a code syntax per platform (`setVariableCodeSyntax('WEB', 'var(--color-text-primary)')`, and Android / iOS when in scope) so Dev Mode shows the code name.
+- **Instances only** in screens: every UI element is an instance of a library component with its properties set; no detached instances, no look-alike frames. Use instance swap or slots for composition.
 - **Names are the contract**: components and properties named exactly as the code props (`Button`, `variant=primary`, `size=md`, `disabled`); layers named by role (`header`, `orderSummary`, `payButton`), never `Frame 123`; text layers that hold copy are named by their i18n key (`checkout.payment.title`).
-- **Fonts** must be available in the owner's Figma account; load them before editing text. Images: `use_figma` cannot add new images; use `upload_assets` for given assets and `generate_image` for new ones, otherwise a named placeholder.
-- **Work in small steps**: each tool call returns at most about 20 KB, so build one component, one screen or one section per call, and keep the node ids each call returns.
-- **Verify every step**: after building, take `get_screenshot` of the result and check it against the intent (layout, overflow, contrast, states); fix before moving on.
-- **Never** delete or overwrite other people's work, publish a library, or change files outside the configured ones without asking. Prefer a Figma branch or a new page for large changes when the plan allows branching.
+- **Fonts** must be available in the owner's Figma account; verify style names with `listAvailableFontsAsync()` and load fonts before any text change. **Images**: `use_figma` cannot add new images; use `upload_assets` for given assets and `generate_image` for new ones, otherwise a named placeholder.
+- **Retry-safe batches**: build a whole component set, a screen, or a flow section per call when the script is safe to retry; split when changing page (switch page at most once per call, fan multi-page work out as parallel calls in one message) or after a failure. Return every created and mutated node id from each call and keep them for later calls. On an error, follow `safeToRetryWithoutCanvasRead`.
+- **Show progress**: set `placeholder = true` on sections while you fill them and always set it back to `false` when done.
+- **Verify by evidence**: returned ids, counts and bounds are the structural check; take one screenshot after composing (and one after a visual fix) and check layout, clipping, overflow, contrast and states; fix before moving on.
+- **Never** delete or overwrite other people's work, publish a library, or change files outside the configured ones without asking. Make risky bulk changes on a duplicate or draft first; prefer a Figma branch for large changes when the plan allows it.
 
 ---
 
@@ -179,8 +187,8 @@ For each screen and state, on the `Screens` page:
 ### 6. Build the flows in Figma
 On the `Flows` page, one section per flow named `FLOW: <name>`:
 - Instances (or copies) of the flow's screen frames at the mobile breakpoint laid out left to right in flow order, branches below the happy path; a start marker and end markers.
-- Labelled arrows between screens using the transition grammar, starting on the element that triggers them.
-- Prototype interactions on the triggering elements (navigate / open overlay / back) and a flow starting point, so the flow can be played in prototype mode.
+- Labelled arrows between screens using the transition grammar, starting on the element that triggers them (drawn as lines / vectors with a text label: connectors exist only in FigJam).
+- Prototype reactions on the triggering elements (`setReactionsAsync`: navigate, overlay, back) and a flow starting point on the page, so the flow plays in prototype mode.
 - Sticky notes or annotations for rules that can't be drawn (validation, edge cases, backend dependencies).
 - If the project also keeps flows in Miro (it has a Miro flow convention doc), mirror them there following that convention.
 
@@ -193,7 +201,7 @@ Per screen: heading levels, landmarks, reading and focus order (numbered annotat
 - `docs/design/fe-handoff-contract.md`: write the contract section below into the project on first run (with its `contract_version`), so the FE skill reads it from the project.
 
 ### 9. Validate and hand off
-Run the Review mode checklists on your own screens and fix what fails; for high-risk flows (money, onboarding, core task) propose a 5-participant usability test plan. Send the owner a summary with Figma links and screenshots of the key screens per breakpoint, and the decisions that need them. Mark approved screens ready for development (Dev Mode status where the API allows, plus `status: ready` in the metadata) and hand the feature doc, UX-xx and screen ids to the architect.
+Run the Review mode checklists on your own screens and fix what fails; for high-risk flows (money, onboarding, core task) propose a 5-participant usability test plan. Send the owner a summary with Figma links and screenshots of the key screens per breakpoint, and the decisions that need them. Mark approved screens ready for development (`status: ready` in the metadata and the screen's `Status` annotation) and hand the feature doc, UX-xx and screen ids to the architect.
 
 ---
 
@@ -240,7 +248,7 @@ Stored as shared plugin data on the screen frame (namespace `agentic_team`, key 
 Unknown API details are `TBD-ARCH`, never invented.
 
 **3. Human-readable annotations (Dev Mode)**
-Annotation categories created once per file: `Behavior`, `Data`, `Validation`, `A11y`, `Responsive`. Annotate the screen frame (route, purpose, status) and every element with behaviour that the structure doesn't show. Add a dev resource link from each screen frame to its JSON and feature doc in the repo.
+Annotation categories created once per file (`figma.annotations`): `Status`, `Behavior`, `Data`, `Validation`, `A11y`, `Responsive`. Annotate the screen frame (route, purpose, status, repo paths of its JSON and feature doc) and every element with behaviour that the structure doesn't show. Components link to their spec doc through their documentation link.
 
 Before marking a screen `ready`, check the three layers agree and that every UX-xx linked to the screen is visible in at least one state.
 
@@ -251,7 +259,7 @@ Before marking a screen `ready`, check the three layers agree and that every UX-
 Target: a Figma file or frame, a running app, a PR (diff plus preview), or screenshots.
 
 How:
-- **Figma**: `get_metadata`, `get_screenshot`, `get_design_context`, `get_variable_defs`, and read the screen metadata with `use_figma`.
+- **Figma**: `create_session` first, then `get_metadata`, `get_screenshot`, `get_variable_defs`, and a read-only `use_figma` (with `figma-use` loaded) for annotations, shared plugin data and detached instances; load `figma-design-to-code` before any `get_design_context` call.
 - **Running web app**: browser tools to walk flows, read the accessibility tree, test keyboard-only use, screenshot at every configured breakpoint plus 320 px, 200% zoom, dark mode, reduced motion; run axe (e.g. `@axe-core/playwright`) when available and add the manual checks.
 - **Native**: simulator via computer use when available, otherwise screenshots and recordings with the screen reader and largest text size.
 - **Built UI vs design**: compare the implementation with the Figma frame and the screen JSON at each breakpoint.
