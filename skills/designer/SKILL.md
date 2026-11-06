@@ -26,10 +26,10 @@ Principles:
 
 ## Place in the team
 
-| Coordinator owns | Designer owns | Architect owns | Frontend skill (planned) owns |
+| Coordinator owns | Designer owns | Architect owns | Frontend skill owns |
 |---|---|---|---|
 | Research, personas, BR / FR / NFR (incl. the accessibility target) | IA, flows, interaction design, screens, states, responsive layouts | Front-end architecture, framework, API contracts, token build pipeline | Building screens and components from the handoff contract |
-| Owner decisions (brand, budget, scope) | Design system in Figma and its specs; motion catalog; UX acceptance criteria `UX-xx`; design QA | Plans, reviews, PRs | Tests per UX-xx, reporting design gaps |
+| Owner decisions (brand, budget, scope) | Design system in Figma and its specs; motion catalog; UX acceptance criteria `UX-xx`; design QA | Plans, reviews, PRs | Tests per UX-xx, reporting `DESIGN-GAP`s, motion presets by id |
 
 Working as a team:
 - **Never invent requirements.** They come from the coordinator (requirements doc or brief). Gaps become `ASSUMPTION`s or questions in your report.
@@ -65,7 +65,7 @@ Settings live in `docs/design/designer.config.md` in the repository. Read `docs/
 - tokens_source_of_truth: figma-variables | repo
 - tokens_path: <e.g. design-tokens/ (DTCG JSON)>
 - component_library_path: <e.g. src/ui/>
-- frontend_skill: <skill name, or none yet>
+- frontend_skill: frontend   # or none
 - a11y_target: WCAG 2.2 AA   # floor; never lower without an owner decision
 - brand: <brand guide link, fonts, logo; or "owner to decide">
 - fonts: <families available in the Figma account; default Inter>
@@ -211,7 +211,7 @@ Per screen: heading levels, landmarks, reading and focus order (numbered annotat
 ### 8. Repo outputs
 - `docs/design/features/<slug>.md`: problem, users, scope, linked BR / FR / NFR, flow diagrams and Figma links, screen inventory, copy deck, **UX acceptance criteria** `UX-01`… (testable, each linked to FR / BR, e.g. "UX-03 (FR-07): an invalid email keeps the input, shows the error under the field and moves focus to it"), analytics events if required, assumptions, questions for the owner and the architect.
 - `docs/design/screens/<SCR-id>.json` for every screen: the metadata from the contract, so the FE skill can work without Figma access too.
-- `docs/design/fe-handoff-contract.md`: write the contract section below into the project on first run and whenever its `contract_version` changes (also copy `references/motion.md` §5 into it), so the FE skill reads it from the project.
+- `docs/design/fe-handoff-contract.md`: write the contract section below into the project on first run and whenever its `contract_version` changes (also copy `references/motion.md` §5 into it), so the `frontend` skill reads it from the project.
 
 ### 9. Validate and hand off
 Run the Review mode checklists on your own screens and fix what fails; for high-risk flows (money, onboarding, core task) propose a 5-participant usability test plan. Send the owner a summary with Figma links and screenshots of the key screens per breakpoint, and the decisions that need them. Mark approved screens ready for development (`status: ready` in the metadata and the screen's `Status` annotation) and hand the feature doc, UX-xx and screen ids to the architect.

@@ -26,6 +26,8 @@ All project settings live in `docs/architecture/architect.config.md` in the repo
 - task_source_details: <board / list / project / repo>
 - task_status_update: <e.g. move Trello card to "In review" and comment PR link, or none>
 - developer_skill: <skill name or none>   # none = architect implements
+- frontend_skill: <skill name or none>    # UI tasks (screens, components, FE data layer); none = developer_skill
+- designer_skill: <skill name or none>    # reviews built UI against the design
 - devops_skill: <skill name or none>      # none = architect does env setup
 - qa_skill: <skill name or none>          # none = architect covers QA
 - repo: <owner/repo>
@@ -59,7 +61,7 @@ Ask for missing items in one batch (at most 4 questions per AskUserQuestion call
 ### 2. Configure roles and tooling
 Ask (in one batch):
 - Task source and its details (e.g. Trello board + list)
-- Developer skill
+- Developer skill (backend) and frontend skill
 - DevOps skill
 - QA skill
 - Build/test commands if a repo already exists (otherwise define them in the design)
@@ -162,6 +164,7 @@ If the task conflicts with the design, stop: explain the conflict and propose a 
 - Create the branch from `base_branch`.
 - If `developer_skill` is set, spawn a subagent with the Agent tool. Prompt it to: load the `<developer_skill>` skill with the Skill tool; implement exactly the plan at `<plan path>`; follow `docs/architecture/02-implementation.md` and its guidelines checklist; write the planned tests; run build, lint, unit and integration commands; not change scope or design without reporting it; finish with a report of changed files, test results and any deviations.
 - If `developer_skill` is `none`, implement the plan yourself following the same rules.
+- UI work (screens, components, the frontend data layer) goes to `frontend_skill` when set: same prompt, plus the screen ids (`SCR-…`), the feature doc and `docs/design/fe-handoff-contract.md`, and "run in build mode". A task with backend and UI parts is split: backend first (or in parallel against the agreed contract), then frontend; each agent gets only its part of the plan.
 
 ### 5. Architecture review
 Review `git diff <base_branch>...HEAD` against:
@@ -172,6 +175,8 @@ Review `git diff <base_branch>...HEAD` against:
 - AuthZ enforced, input validation, no secrets in code, config externalized
 - Error handling, idempotency, logging/tracing per design
 - Migrations reversible
+
+For UI changes, also run `designer_skill` in review mode on the preview or diff and merge its findings into yours.
 
 Write findings with severity: `BLOCKER`, `MAJOR`, `MINOR`. If there are blockers or majors, send them to the same developer agent (SendMessage, so it keeps its context) and repeat the review. Stop after `max_review_iterations`; then report remaining issues to the user and ask how to proceed.
 
