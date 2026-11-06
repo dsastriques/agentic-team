@@ -8,7 +8,7 @@ Skills that form a multidisciplinary software team. Each expert is a skill; they
 |---|---|---|
 | [coordinator](skills/coordinator/SKILL.md) | Leads research and functional requirements, keeps the project log, hands technical work to the architect | `/coordinator [task]`, `/coordinator -r [task]` for research only |
 | [architect](skills/architect/SKILL.md) | Technology selection, system design, deployment and test strategy; plans, delegates and reviews implementation | `architect design`, `architect impl <task>` |
-| [designer](skills/designer/SKILL.md) | Usability, accessibility (WCAG 2.2 AA), design patterns, design system and components, responsive screens and full flows built in Figma from the requirements, with implementation metadata for a frontend skill; reviews built UI | `designer system [scope]`, `designer design [feature]`, `designer review <target>` |
+| [designer](skills/designer/SKILL.md) | Usability, accessibility (WCAG 2.2 AA), design patterns, design system and components, micro-animations (named motion catalog), responsive screens and full flows built in Figma from the requirements, with implementation metadata for a frontend skill; reviews built UI | `designer system [scope]`, `designer design [feature]`, `designer review <target>` |
 
 Planned: `developer`, `devops`, `qa` (called by the architect), `frontend` (builds screens from the designer's handoff contract).
 
