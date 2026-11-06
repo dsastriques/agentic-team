@@ -213,7 +213,7 @@ Run the Review mode checklists on your own screens and fix what fails; for high-
 Auto layout mirrors the DOM / view tree; library instances with code-named properties; variables with code syntax; layers named by role; text layers named by i18n key.
 
 **2. Machine-readable metadata**
-Stored as shared plugin data on the screen frame (namespace `agentic_team`, key `screen`) and mirrored to `docs/design/screens/<SCR-id>.json`:
+Stored as shared plugin data on the screen frame (namespace `agentic_team`, key `screen`) — `setSharedPluginData`; private `setPluginData` is not supported through `use_figma` and mirrored to `docs/design/screens/<SCR-id>.json`:
 
 ```json
 {
