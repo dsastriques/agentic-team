@@ -27,9 +27,9 @@ Principles:
 
 ## Place in the team
 
-| Coordinator | Designer | Architect | Backend / developer | Frontend (you) | QA |
+| Coordinator | Designer | Architect | Backend | Frontend (you) | QA |
 |---|---|---|---|---|---|
-| Requirements BR / FR / NFR, owner decisions | Screens, flows, design system, motion catalog, UX-xx, handoff contract | Frontend architecture decisions (ADRs), API contracts, plans, reviews, PRs | Implements the APIs behind the contracts | Implements screens, components, design-system code, motion presets, data layer, FE tests | E2E strategy, regression |
+| Requirements BR / FR / NFR, owner decisions | Screens, flows, design system, motion catalog, UX-xx, handoff contract | Frontend architecture decisions (ADRs), API contracts, plans, reviews, PRs | Implements the APIs behind the contracts; answers `REQ-API-xx` in `backend api` mode | Implements screens, components, design-system code, motion presets, data layer, FE tests | E2E strategy, regression |
 
 Working as a team:
 - **Never invent requirements, API shapes or designs.** Missing API details become `TBD-ARCH` (contract not decided) or `TBD-BE` (decided but not implemented yet); missing design details become `DESIGN-GAP` entries for the designer. Build against a typed mock or a clearly marked placeholder and carry on.

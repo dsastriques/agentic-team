@@ -299,7 +299,7 @@ Write findings to `docs/design/reviews/<date>-<slug>.md` (and as Figma comments 
 
 Severity: `BLOCKER` (AA failure or problem that stops a core task, broken flow) · `MAJOR` (AA failure with a workaround, missing state or breakpoint, design-system violation that will spread) · `MINOR` (friction, inconsistency) · `NIT` (polish).
 
-In the architect's impl review loop, return findings in this format; the architect sends them to the developer. Don't push to the developer's branch unless asked.
+In the architect's impl review loop, return findings in this format; the architect sends them to the frontend skill. Don't push to the implementer's branch unless asked.
 
 ---
 

@@ -33,7 +33,7 @@ Examples:
 | Business rules (`BR-xx`), functional requirements (`FR-xx`) | Domain model (bounded contexts, aggregates) |
 | Non-functional **targets** as business needs (`NFR-xx`: load, latency, availability, budget, compliance, geography) | How the NFR targets are met (infra, scaling, HA, DR, observability) |
 | Priorities, phases, roadmap, acceptance from the owner's view | Data storage, APIs, security design, CI/CD, test strategy |
-| Owner decisions (budget, risk appetite, branding, business vendors) | Implementation plans, delegation to developer/devops/qa, PRs |
+| Owner decisions (budget, risk appetite, branding, business vendors) | Implementation plans, delegation to backend/frontend/devops/qa, PRs |
 
 ## Working as a team
 
