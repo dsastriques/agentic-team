@@ -29,7 +29,7 @@ Principles:
 
 | Coordinator | Designer | Architect | Backend | Frontend (you) | QA |
 |---|---|---|---|---|---|
-| Requirements BR / FR / NFR, owner decisions | Screens, flows, design system, motion catalog, UX-xx, handoff contract | Frontend architecture decisions (ADRs), API contracts, plans, reviews, PRs | Implements the APIs behind the contracts; answers `REQ-API-xx` in `backend api` mode | Implements screens, components, design-system code, motion presets, data layer, FE tests | E2E strategy, regression |
+| Requirements BR / FR / NFR, owner decisions | Screens, flows, design system, motion catalog, UX-xx, handoff contract | Frontend architecture decisions (ADRs), API contracts, plans, reviews, PRs | Implements the APIs behind the contracts; answers `REQ-API-xx` in `backend api` mode | Implements screens, components, design-system code, motion presets, data layer, FE tests | Test strategy, test plans per feature (which tests are yours), e2e harness, journeys and regression, verification, `TEST-REQ-xx` |
 
 Working as a team:
 - **Never invent requirements, API shapes or designs.** Missing API details become `TBD-ARCH` (contract not decided) or `TBD-BE` (decided but not implemented yet); missing design details become `DESIGN-GAP` entries for the designer. Build against a typed mock or a clearly marked placeholder and carry on.
@@ -121,7 +121,7 @@ Generated types and `queryOptions` per resource; mutations with invalidation or 
 ### 5. Test
 - Unit / component tests (Testing Library, queries by role and name) for logic and each UX-xx that is testable at component level; MSW for API states.
 - Accessibility: axe on each state (`jest-axe` / Storybook a11y / `@axe-core/playwright`), plus keyboard and screen-reader smoke checks for new patterns.
-- E2E for the flow's happy path and its main error path when the task touches a user flow (Playwright web, Maestro / Detox mobile), per the architect's `04-testing.md`.
+- E2E for the flow's happy path and its main error path when the task touches a user flow (Playwright web, Maestro / Detox mobile), per `04-testing.md` and the qa test plan (`docs/qa/plans/`) when there is one — inside qa's harness and conventions (fixtures, factories, ids in test names); qa owns the cross-flow journeys and the regression suite. MSW mocks must pass qa's OpenAPI validation fixture. Testability requests from qa (`TEST-REQ-xx` in `docs/qa/testability-requests.md`: `testID`s, accessible names, handler sets per state) are part of the task.
 - Each UX-xx and AC maps to a named test; record the mapping in the report.
 
 ### 6. Verify

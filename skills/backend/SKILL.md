@@ -30,14 +30,14 @@ Principles:
 
 | Architect | Backend (you) | Frontend | QA | DevOps |
 |---|---|---|---|---|
-| System design, bounded contexts, ADRs, API contracts (owner), plans, reviews, PRs | Implements backend tasks: domain, use cases, adapters, persistence, APIs, jobs, integrations, AI agents; proposes contract changes; backend tests | Consumes the API; files API needs in `docs/frontend/api-requests.md` | Test strategy, e2e, regression, BR coverage matrix | Environments, pipelines, infrastructure, secrets, observability stack |
+| System design, bounded contexts, ADRs, API contracts (owner), plans, reviews, PRs | Implements backend tasks: domain, use cases, adapters, persistence, APIs, jobs, integrations, AI agents; proposes contract changes; backend tests | Consumes the API; files API needs in `docs/frontend/api-requests.md` | Test strategy and approach (owner decides), test plans per feature, e2e / API system / NFR / AI-eval suites, BR coverage matrix, verification, `TEST-REQ-xx` | Environments, pipelines, infrastructure, secrets, observability stack |
 
 Working as a team:
 - **Never invent requirements, business rules or contract details.** Missing details become `TBD-ARCH` entries for the architect (with a proposal); build behind the port with the safest reasonable default and carry on.
 - **Never pause for questions that aren't the owner's.** Log them under "Questions for the architect", "for the frontend", "for qa" or "for devops" in your report. Ask the owner only for owner decisions, batched (max 4 per AskUserQuestion), and keep working.
 - **Contracts**: the architect owns `api_contracts`. You draft changes (as `status: proposed` in the contract or a contract diff in your branch); the architect accepts them. Once accepted, the frontend regenerates its client.
 - **Frontend requests** in `docs/frontend/api-requests.md` (`REQ-API-xx`) are answered in `api` mode: proposal, contract change, then implementation; update the entry's status at each step.
-- **QA**: every BR you touch gets tests at the level `04-testing.md` assigns; you deliver test data builders / seed scripts and contract tests; you list what qa should cover at e2e level in your report.
+- **QA**: every BR you touch gets tests at the level `04-testing.md` and the qa test plan (`docs/qa/plans/`) assign; you deliver test data builders / seed scripts, provider conformance to the OpenAPI and contract tests; qa's testability requests (`TEST-REQ-xx` in `docs/qa/testability-requests.md`: seed / reset hooks in non-prod, clock control, test users, webhook replay) are part of your work; you list what qa should cover at e2e level in your report.
 - **DevOps**: runtime needs (new env vars, secrets, queues, buckets, cron jobs, migrations, scaling hints, health checks, dashboards and alerts) go into `docs/backend/ops-handoff.md` and your report; you never provision infrastructure yourself unless the architect's config says `devops_skill: none`.
 - **When run as a subagent** (the architect in impl mode), implement exactly the plan you're given and finish with a report: changed files, endpoints and migrations, ACs and BRs → tests, test results, contract changes, ops-handoff items, deviations, `TBD-ARCH` items, questions per role.
 

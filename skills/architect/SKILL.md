@@ -29,7 +29,7 @@ All project settings live in `docs/architecture/architect.config.md` in the repo
 - frontend_skill: <skill name or none>    # UI tasks (screens, components, FE data layer); none = backend_skill
 - designer_skill: <skill name or none>    # reviews built UI against the design
 - devops_skill: <skill name or none>      # environments, IaC, CI/CD, runtimes, observability, dev environment; none = architect does env setup
-- qa_skill: <skill name or none>          # none = architect covers QA
+- qa_skill: <skill name or none>          # owns 04-testing.md, test approach options (owner decides), test plans, e2e / system / NFR suites, verification; none = architect covers QA
 - repo: <owner/repo>
 - base_branch: main
 - branch_pattern: feature/<task-id>-<slug>
@@ -111,7 +111,7 @@ Write to `docs/architecture/`. Use Mermaid for diagrams (C4 context/container, c
 - Cost notes
 - **DevOps handoff checklist** - an explicit numbered list of what must be provisioned and configured
 
-**04-testing.md** (input for the qa skill)
+**04-testing.md** — owned by the qa skill when `qa_skill` is set. You write only the testability inputs (quality-relevant NFRs with numbers, risky areas and integrations, contracts, testability constraints such as seed / reset hooks and clock control in `02-implementation.md`) and hand it to qa's `strategy` mode. QA builds approach options with cost facts from devops (from mocked frontend plus API tests up to full e2e on a production clone); the **owner** chooses the approach and its budget; the environments that choice needs (previews, staging, prod-sized clone, device cloud) come back to you as `TBD-ARCH` with an ADR draft, and you record them in `03-deployment.md`. When `qa_skill` is `none`, you write the whole document:
 - Test strategy and pyramid (unit, integration, contract, e2e, NFR)
 - E2E setup: tool, environment, test data seeding/reset, how it runs in CI
 - **Business rules coverage matrix**: BR id -> test level -> test name/location -> status
@@ -131,7 +131,7 @@ Send a short summary: chosen architecture, key patterns, deployment shape, main 
 ### 6. Handoffs
 Ask whether to run the handoffs now.
 - DevOps: if `devops_skill` is set, spawn a subagent (Agent tool) whose prompt tells it to load that skill with the Skill tool, run in setup mode and use `docs/architecture/03-deployment.md` as its specification. It checks the document for feasibility and cost first and writes `docs/devops/feasibility.md`; undecided or infeasible hosting decisions come back as `TBD-ARCH` entries with facts — you decide, update `03-deployment.md` / ADRs and send devops on. Devops builds nothing that depends on an open hosting decision. If `none`, perform the environment setup yourself (IaC, CI pipeline, environments) following that document.
-- QA: same with `qa_skill` and `docs/architecture/04-testing.md` (e2e harness, test data, regression suite, CI integration). If `none`, do it yourself.
+- QA: if `qa_skill` is set, spawn a subagent that loads it and runs `strategy` (risk profile, approach options, the owner's decision, `04-testing.md`) and then `setup` for the chosen approach (harnesses, contract checks, test data, CI requests to devops). If the owner can't be asked inside the subagent, qa returns the options marked `PENDING-OWNER`: put them to the owner yourself, then send qa on. Environment needs it returns are `TBD-ARCH` for `03-deployment.md`. If `none`, do it yourself.
 Review what comes back against the respective handoff checklist and report gaps.
 
 ---
@@ -161,11 +161,14 @@ Write `docs/architecture/tasks/<task-id>-plan.md`:
 
 If the task conflicts with the design, stop: explain the conflict and propose a design/ADR change for the user to approve before continuing.
 
+If `qa_skill` is set and the task touches a BR, a user flow or an NFR, run qa in `plan` mode on the plan before delegating: it reviews the ACs for testability (ambiguous ones come back as proposals) and writes `docs/qa/plans/<task-id>.md` with test conditions `TS-xx`, each assigned a level and an owner (backend, frontend or qa). Copy the TS ids per owner into the plan's "Tests to add".
+
 ### 4. Delegate to the implementers
 - Create the branch from `base_branch`.
 - Backend work goes to `backend_skill` when set: spawn a subagent with the Agent tool. Prompt it to: load the `<backend_skill>` skill with the Skill tool; implement exactly the plan at `<plan path>`; follow `docs/architecture/02-implementation.md` and its guidelines checklist; write the planned tests; run build, lint, unit and integration commands; not change scope or design without reporting it; finish with a report of changed files, test results and any deviations. For the backend add: "run in build mode", the contract sections involved and any `REQ-API-xx` the task answers; its contract changes come back as `proposed` for you to accept, and its `docs/backend/ops-handoff.md` items go to the devops handoff.
 - If `backend_skill` is `none`, implement the plan yourself following the same rules.
 - UI work (screens, components, the frontend data layer) goes to `frontend_skill` when set: same prompt, plus the screen ids (`SCR-…`), the feature doc and `docs/design/fe-handoff-contract.md`, and "run in build mode". A task with backend and UI parts is split: backend first (or in parallel against the agreed contract), then frontend; each agent gets only its part of the plan.
+- QA-owned tests from the test plan (e2e journeys, cross-service API system tests, authorization matrix, NFR suites, AI evals) go to `qa_skill` in `build` mode, in parallel with the implementers once the contract and screen ids are fixed; its testability requests (`TEST-REQ-xx`) go to the backend or frontend agent.
 - Infrastructure, pipeline and environment work (the backend's `docs/backend/ops-handoff.md` items, requests in `docs/devops/requests.md`, CI gates, hosting, previews, dashboards and alerts) goes to `devops_skill` when set: same prompt, plus the `OPS-xx` ids and "run in build mode". It applies only to the environments its config allows; staging and production change through the pipeline. If `none`, do it yourself following `03-deployment.md`.
 
 ### 5. Architecture review
@@ -185,7 +188,7 @@ Write findings with severity: `BLOCKER`, `MAJOR`, `MINOR`. If there are blockers
 ### 6. Test verification
 - Check each AC and affected BR has a test at the level the plan specified; update the BR coverage matrix in `04-testing.md`.
 - Run the `regression` command (and `e2e` if the task touches user flows). Everything must be green.
-- If `qa_skill` is set, optionally spawn a QA subagent with that skill to verify coverage and e2e for the task.
+- If `qa_skill` is set, run it in `verify` mode on the branch or preview: it runs the required suites, checks traceability against its test plan, runs an exploratory session for high-risk tiers and returns a verdict with `BUG-xx` items. Its S1 / S2 bugs are `BLOCKER` / `MAJOR` findings for the implementer that owns the code.
 - Failures or missing tests go back to the implementer agent as findings (counts toward iterations).
 
 ### 7. Pull request
