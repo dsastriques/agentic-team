@@ -28,7 +28,7 @@ All project settings live in `docs/architecture/architect.config.md` in the repo
 - backend_skill: <skill name or none>     # backend tasks (domain, APIs, persistence, jobs, integrations, AI agents); none = architect implements
 - frontend_skill: <skill name or none>    # UI tasks (screens, components, FE data layer); none = backend_skill
 - designer_skill: <skill name or none>    # reviews built UI against the design
-- devops_skill: <skill name or none>      # none = architect does env setup
+- devops_skill: <skill name or none>      # environments, IaC, CI/CD, runtimes, observability, dev environment; none = architect does env setup
 - qa_skill: <skill name or none>          # none = architect covers QA
 - repo: <owner/repo>
 - base_branch: main
@@ -129,7 +129,7 @@ Send a short summary: chosen architecture, key patterns, deployment shape, main 
 
 ### 6. Handoffs
 Ask whether to run the handoffs now.
-- DevOps: if `devops_skill` is set, spawn a subagent (Agent tool) whose prompt tells it to load that skill with the Skill tool and use `docs/architecture/03-deployment.md` as its specification. If `none`, perform the environment setup yourself (IaC, CI pipeline, environments) following that document.
+- DevOps: if `devops_skill` is set, spawn a subagent (Agent tool) whose prompt tells it to load that skill with the Skill tool, run in setup mode and use `docs/architecture/03-deployment.md` as its specification. It checks the document for feasibility and cost first; its `TBD-ARCH` items and ADR drafts (runtime per app, Kubernetes or managed containers, GitOps, observability stack) come back to you to decide. If `none`, perform the environment setup yourself (IaC, CI pipeline, environments) following that document.
 - QA: same with `qa_skill` and `docs/architecture/04-testing.md` (e2e harness, test data, regression suite, CI integration). If `none`, do it yourself.
 Review what comes back against the respective handoff checklist and report gaps.
 
@@ -165,6 +165,7 @@ If the task conflicts with the design, stop: explain the conflict and propose a 
 - Backend work goes to `backend_skill` when set: spawn a subagent with the Agent tool. Prompt it to: load the `<backend_skill>` skill with the Skill tool; implement exactly the plan at `<plan path>`; follow `docs/architecture/02-implementation.md` and its guidelines checklist; write the planned tests; run build, lint, unit and integration commands; not change scope or design without reporting it; finish with a report of changed files, test results and any deviations. For the backend add: "run in build mode", the contract sections involved and any `REQ-API-xx` the task answers; its contract changes come back as `proposed` for you to accept, and its `docs/backend/ops-handoff.md` items go to the devops handoff.
 - If `backend_skill` is `none`, implement the plan yourself following the same rules.
 - UI work (screens, components, the frontend data layer) goes to `frontend_skill` when set: same prompt, plus the screen ids (`SCR-…`), the feature doc and `docs/design/fe-handoff-contract.md`, and "run in build mode". A task with backend and UI parts is split: backend first (or in parallel against the agreed contract), then frontend; each agent gets only its part of the plan.
+- Infrastructure, pipeline and environment work (the backend's `docs/backend/ops-handoff.md` items, requests in `docs/devops/requests.md`, CI gates, hosting, previews, dashboards and alerts) goes to `devops_skill` when set: same prompt, plus the `OPS-xx` ids and "run in build mode". It applies only to the environments its config allows; staging and production change through the pipeline. If `none`, do it yourself following `03-deployment.md`.
 
 ### 5. Architecture review
 Review `git diff <base_branch>...HEAD` against:
@@ -188,7 +189,7 @@ Write findings with severity: `BLOCKER`, `MAJOR`, `MINOR`. If there are blockers
 
 ### 7. Pull request
 - Commit with a clear message, push the branch, create the PR with `gh pr create` against `base_branch`.
-- PR body: summary, task link, plan link, ACs and their tests, design compliance (guidelines checked, deviations and ADRs), test results (regression/e2e), risks and rollout notes (migrations, flags).
+- PR body: summary, task link, plan link, ACs and their tests, design compliance (guidelines checked, deviations and ADRs), test results (regression/e2e), risks and rollout notes (migrations, flags), and for infrastructure changes the plan summary per environment and the cost delta.
 - If the implementation required a design change, the updated design docs and ADR go in the same PR.
 - Apply `task_status_update` (e.g. comment the PR link on the Trello card and move it).
 - Report to the user: PR link, review iterations, anything left open.

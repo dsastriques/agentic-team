@@ -88,7 +88,7 @@ Produce the foundations once, then keep them current. Read the references as you
 5. **Motion presets**: implement every entry of `docs/design/motion.md` once, keyed by id, with its reduced-motion alternative (`references/handoff-to-code.md` §4).
 6. **i18n**: library setup, message files per namespace keyed by the designer's copy keys, locale negotiation, lazy locale loading, pseudo-locale for testing, `Intl` formatters.
 7. **API layer**: generate the client and types from `api_contracts`, the fetch wrapper (base URL, auth, timeouts, correlation id, problem-details parsing), the QueryClient defaults, the query key factory per resource, MSW mocks for every endpoint.
-8. **CI gates** (to the architect, who hands pipeline work to devops): typecheck, lint, unit, a11y, e2e smoke, bundle budgets, Lighthouse CI on key routes.
+8. **CI gates** (to the architect, who hands pipeline work to devops): typecheck, lint, unit, a11y, e2e smoke, bundle budgets, Lighthouse CI on key routes. Hosting, CDN and security headers, runtime config per environment, preview deploys, source-map upload and EAS build / update channels are requests to devops in `docs/devops/requests.md`.
 9. **Report** to the architect with the ADR drafts, open questions and the component build status.
 
 ---
