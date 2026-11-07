@@ -18,16 +18,16 @@ Also: composition over inheritance, tell-don't-ask, law of Demeter for aggregate
 
 | Pattern | Typical backend use | Notes |
 |---|---|---|
-| **Strategy** | pricing rules, payment providers, notification channels, LLM providers | select by config or domain data via a registry |
+| **Strategy** | pricing rules, payment providers, notification channels | select by config or domain data via a registry |
 | **Factory / Factory Method** | building aggregates with invariants (`Booking.create(...)`), choosing an adapter per tenant | keep construction rules in the domain |
 | **Builder** | complex test data (test data builders), request objects for external APIs | prefer records / dataclasses with defaults for simple cases |
 | **Adapter** | every outbound port implementation; anti-corruption layer for external APIs | map external models to domain types at the boundary |
-| **Facade** | a simple port over a complex SDK (payments, search, LLM) | |
+| **Facade** | a simple port over a complex SDK (payments, search) | |
 | **Decorator** | cross-cutting around ports: caching repository, retrying client, metrics, tracing, authorization checks | stackable; keeps the core clean |
 | **Proxy** | lazy loading, remote access, rate-limited clients | |
 | **Template Method** | shared job skeleton (load → process → mark done) | prefer composition (strategy) when variants multiply |
-| **Chain of Responsibility** | middleware / filters, validation pipelines, LLM guardrail chains | |
-| **Command** | use case inputs, queued jobs, undoable operations, agent tool calls | serializable, idempotency key on the command |
+| **Chain of Responsibility** | middleware / filters, validation pipelines | |
+| **Command** | use case inputs, queued jobs, undoable operations | serializable, idempotency key on the command |
 | **Observer** | domain events → handlers | in-process for the same context, outbox + broker across contexts |
 | **State** | aggregates with lifecycles (booking: requested → confirmed → active → returned / cancelled) | transitions as methods guarded by invariants; matches the designer's flow state machines |
 | **Specification** (DDD) | composable business rules and query filters (`AvailableFor(dates)`) | |

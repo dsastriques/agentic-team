@@ -46,7 +46,7 @@ Scenarios in `tests/perf/`, one per journey or API group, with thresholds from t
 
 ## 6. AI features (LLM calls, agents, RAG)
 
-The backend implements AI features; you own their evaluation suite with them.
+The skill that implements an AI feature (the planned AI specialist, or whoever the architect assigns) builds it; you own its evaluation suite with them.
 - **Golden dataset** per feature in `tests/evals/<feature>/`: inputs with expected properties (not exact strings): required facts, forbidden content, structure (JSON schema), tool calls expected, refusal expected. Built from requirements and, with the owner's approval, anonymized real queries.
 - **Checks**, cheapest first: deterministic (schema, regex, tool-call names and arguments, length, latency, cost per call) → reference-based (similarity to an expected answer) → rubric-based LLM-as-judge with a fixed judge model and a written rubric, calibrated against a small human-labelled set.
 - **Safety cases**: prompt injection through user content and retrieved documents, data exfiltration attempts, jailbreak patterns relevant to the product, PII leakage, off-topic requests.

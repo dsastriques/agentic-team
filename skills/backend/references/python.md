@@ -39,7 +39,6 @@ services/bookings/
       outbound/db/     # SQLAlchemy tables/mappers, repositories, UnitOfWork
       outbound/redis/
       outbound/payments/
-      outbound/llm/
     config/            # settings, container / composition root, app factory
   migrations/          # alembic
   tests/unit | integration | api | contract
@@ -48,7 +47,7 @@ services/bookings/
 ## 3. Practices
 
 - **Domain models** as plain classes / `@dataclass(slots=True)` with behaviour; value objects frozen (`frozen=True`); ids as `NewType` or small value classes; money with `Decimal` and currency, never float; time-zone-aware `datetime` (UTC) via an injected `Clock`.
-- **Pydantic** at the edges (HTTP schemas, settings, LLM structured output), not as domain entities; map explicitly between schemas and domain objects.
+- **Pydantic** at the edges (HTTP schemas, settings, external API payloads), not as domain entities; map explicitly between schemas and domain objects.
 - **Ports as `typing.Protocol`**; adapters implement them; tests use in-memory fakes.
 - **Unit of Work** wrapping the SQLAlchemy session (one transaction per use case); repositories return domain objects; no session leaking into the application layer.
 - **Dependency injection** via FastAPI `Depends` at the edge only, building use cases from a composition root; avoid global singletons.

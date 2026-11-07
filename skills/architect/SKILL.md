@@ -25,7 +25,7 @@ All project settings live in `docs/architecture/architect.config.md` in the repo
 - task_source: trello | github-issues | jira | linear | manual   # manual = user pastes the task
 - task_source_details: <board / list / project / repo>
 - task_status_update: <e.g. move Trello card to "In review" and comment PR link, or none>
-- backend_skill: <skill name or none>     # backend tasks (domain, APIs, persistence, jobs, integrations, AI agents); none = architect implements
+- backend_skill: <skill name or none>     # backend tasks (domain, APIs, persistence, jobs, integrations; not AI features — LLM calls, agents, RAG — which belong to a planned AI specialist skill); none = architect implements
 - frontend_skill: <skill name or none>    # UI tasks (screens, components, FE data layer); none = backend_skill
 - designer_skill: <skill name or none>    # reviews built UI against the design
 - devops_skill: <skill name or none>      # environments, IaC, CI/CD, runtimes, observability, dev environment; none = architect does env setup

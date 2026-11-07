@@ -37,7 +37,6 @@ bookings/
       in/messaging/
       out/persistence/      # JPA entities (separate from domain) or jOOQ, repository adapters
       out/payments/
-      out/llm/
     config/                 # @Configuration, wiring, properties (@ConfigurationProperties records)
   src/test/java/...         # unit, integration (Testcontainers), web, ArchUnit rules
   src/main/resources/db/migration/   # Flyway V001__create_booking.sql
