@@ -23,7 +23,7 @@ Planned: `qa` (called by the architect).
 4. The **architect** designs (`docs/architecture/`), then implements tasks through the backend, frontend, devops and qa skills and opens PRs.
    Backend tasks go to the **backend** skill, which builds inside-out (domain → use cases → adapters) against the contracts, answers the frontend's `REQ-API-xx` requests with proposed contract changes, and records runtime needs for devops in `docs/backend/ops-handoff.md`.
    UI tasks go to the **frontend** skill, which builds screens from the designer's screen JSON and the API contracts, logging `DESIGN-GAP`, `TBD-ARCH` and `TBD-BE` items instead of inventing.
-   Infrastructure, pipeline and environment work goes to the **devops** skill, which builds the platform from `03-deployment.md` (`docs/devops/`), picks up the backend's ops-handoff items and other teams' requests as `OPS-xx`, provisions only after the owner approves plan and cost, and promotes the same image digest dev → staging → prod.
+   Infrastructure, pipeline and environment work goes to the **devops** skill, which implements the architect's hosting decisions in `03-deployment.md` — provider, regions, runtimes, managed vs self-run are the architect's call, devops only supplies feasibility and cost facts — (`docs/devops/`), picks up the backend's ops-handoff items and other teams' requests as `OPS-xx`, provisions only after the owner approves plan and cost, and promotes the same image digest dev → staging → prod.
    The designer reviews built UI for usability, accessibility and design-system compliance, on the devops preview environments.
 5. The owner is asked only for decisions that are theirs.
 

@@ -10,7 +10,7 @@ Conventional commits → release-please (services) or changesets (JS packages); 
 Build once per commit → push and sign the image → deploy the digest to dev (automatic on merge) → staging (automatic after dev smoke; e2e and regression from qa) → prod (GitHub environment approval) → smoke and release-health check. With GitOps, each promotion is a change to the digest in `deploy/<env>/`; without it, the reusable deploy workflow runs per environment. Deployments are recorded per environment.
 
 ## 4. Strategies
-Rolling updates by default; blue-green when versions can't run side by side; canary with automated analysis when traffic and availability NFRs justify it. Feature flags through the provider the architect chose (OpenFeature SDKs with Unleash, Flagsmith, GrowthBook, LaunchDarkly or the like); flags have owners and removal dates.
+The strategy per deployable is the architect's (`03-deployment.md`): rolling updates, blue-green, or canary with automated analysis — implement the one decided; if none is stated, use rolling updates and log a `TBD-ARCH`. Feature flags through the provider the architect chose (OpenFeature SDKs with Unleash, Flagsmith, GrowthBook, LaunchDarkly or the like); flags have owners and removal dates.
 
 ## 5. Database migrations
 - A dedicated pipeline step (or pre-deploy Job) runs migrations before the new version rolls out; it uses its own migration credentials.

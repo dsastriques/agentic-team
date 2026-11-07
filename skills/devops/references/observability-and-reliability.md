@@ -3,7 +3,7 @@
 ## 1. Signals and stack
 - Services emit OpenTelemetry traces, metrics and structured JSON logs (the backend sets up the SDKs; the frontend reports errors and web vitals).
 - An OpenTelemetry Collector (agent per node + gateway, or a sidecar-free deployment) receives, enriches (`service.name`, `service.version`, `deployment.environment`), redacts PII and exports.
-- Backends by budget and residency: self-hosted Grafana LGTM (Prometheus or Mimir, Loki, Tempo, Grafana) — the usual choice on Hetzner; Grafana Cloud; or the cloud-native suites (CloudWatch / X-Ray, Cloud Monitoring / Logging / Trace, Azure Monitor / Application Insights). Error tracking with Sentry (or equivalent) for backend and frontend, with source maps and releases uploaded from CI.
+- Backends as the architect decided: self-hosted Grafana LGTM (Prometheus or Mimir, Loki, Tempo, Grafana), Grafana Cloud, or the cloud-native suites (CloudWatch / X-Ray, Cloud Monitoring / Logging / Trace, Azure Monitor / Application Insights); when asked, give cost, residency and operational facts per option. Error tracking (e.g. Sentry) for backend and frontend, with source maps and releases uploaded from CI.
 - Label cardinality budgets (no user ids or raw paths as metric labels); log retention per environment and GDPR.
 
 ## 2. Dashboards and SLOs

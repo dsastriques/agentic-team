@@ -1,9 +1,9 @@
 # Kubernetes
 
-## 1. When (and when not)
-Kubernetes pays off with several services, needs for operators or portable platform features, steady traffic and a team that can run it. For one or two services, spiky or low traffic, or a small team, prefer serverless containers (Cloud Run, ECS on Fargate, Azure Container Apps) or a VM with Compose. Record the choice and its drivers in an ADR.
+## 1. Who decides
+Whether a deployable runs on Kubernetes, which provider and distribution, and managed vs self-managed are the architect's decisions in `03-deployment.md` / ADRs. This reference is for implementing that decision, and for the facts you give the architect when asked: Kubernetes tends to pay off with several services, operator or portability needs, steady traffic and a team able to run it; serverless containers (Cloud Run, ECS on Fargate, Azure Container Apps) or a VM with Compose carry less operational work for one or two services, spiky traffic or a small team.
 
-## 2. Cluster options
+## 2. Cluster options (implementation notes per option the architect may choose)
 | Provider | Option | Notes |
 |---|---|---|
 | AWS | EKS (Auto Mode, or managed node groups + Karpenter) | EKS Pod Identity for workload IAM; AWS Load Balancer Controller |
@@ -11,7 +11,7 @@ Kubernetes pays off with several services, needs for operators or portable platf
 | Azure | AKS (Automatic or Standard) | Microsoft Entra Workload ID; Application Gateway for Containers or another Gateway API implementation |
 | Hetzner | No native managed Kubernetes (verify the current catalogue before deciding): k3s via kube-hetzner (Terraform) or hetzner-k3s, Talos, Cluster API with the Hetzner provider, or a third-party managed control plane | Hetzner Cloud Controller Manager (load balancers, nodes) and CSI driver (volumes); you own control-plane HA, etcd backups, upgrades and add-ons |
 
-Non-prod environments can share one cluster with a namespace each; production gets its own cluster.
+Cluster-per-environment vs shared non-prod clusters follows the design; when asked, the usual pattern is one shared non-prod cluster (namespace per environment) and a separate production cluster.
 
 ## 3. Baseline add-ons
 - Traffic: **Gateway API** with one implementation (Envoy Gateway, Cilium, Istio, NGINX Gateway Fabric, Traefik, or the cloud's controller). ingress-nginx is retired (best-effort maintenance ended March 2026): don't install it on new clusters and plan migration on existing ones.

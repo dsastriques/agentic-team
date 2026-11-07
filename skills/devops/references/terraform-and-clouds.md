@@ -1,7 +1,7 @@
 # Terraform / OpenTofu and the clouds
 
 ## 1. Tool
-Terraform (Business Source License since 1.6) or OpenTofu (open source, Linux Foundation) — one per project, decided in an ADR. Pin `required_version` and every provider; commit `.terraform.lock.hcl` with hashes for all CI and developer platforms.
+Terraform (Business Source License since 1.6) or OpenTofu (open source, Linux Foundation) — one per project, as the architect decided. Pin `required_version` and every provider; commit `.terraform.lock.hcl` with hashes for all CI and developer platforms.
 
 ## 2. Layout
 ```
@@ -28,7 +28,7 @@ Small stacks limit blast radius and plan time; stacks read each other through ou
 - Module tests with `terraform test` / `tofu test`; tflint with the cloud rule sets; Trivy config or Checkov; Infracost on every PR; scheduled drift detection.
 
 ## 5. Landing zone
-- Separate accounts / projects / subscriptions at least for prod vs non-prod (per environment when the budget allows); organization policies (AWS SCPs, GCP org policies, Azure Policy) for region restrictions (residency), no public buckets, required tags.
+- Account / project / subscription structure as the design says (at minimum prod separated from non-prod — flag it as a `TBD-ARCH` if the design doesn't); organization policies (AWS SCPs, GCP org policies, Azure Policy) for region restrictions (residency), no public buckets, required tags.
 - Humans through SSO with MFA (IAM Identity Center, Google groups, Entra ID); no shared or long-lived user keys; a documented break-glass account.
 - Central audit logs (CloudTrail organization trail, GCP Cloud Audit Logs, Azure Activity Log), budgets with alerts at 50 / 80 / 100 %.
 
@@ -39,7 +39,7 @@ Small stacks limit blast radius and plan time; stacks read each other through ou
 - **Hetzner**: no OIDC federation — one API token per project and environment, stored as a GitHub environment secret, read-only where possible, rotated on a schedule.
 Plan roles are read-only; apply roles exist per environment and are only usable from that protected environment.
 
-## 7. Service mapping
+## 7. Service mapping (facts for the architect; implement what was chosen)
 | Need | AWS | Google Cloud | Azure | Hetzner |
 |---|---|---|---|---|
 | VMs | EC2 | Compute Engine | Virtual Machines | Cloud servers (x86 and ARM), dedicated servers |
@@ -60,9 +60,12 @@ Plan roles are read-only; apply roles exist per environment and are only usable 
 Catalogues change: confirm a service exists in the chosen region before designing around it.
 
 ## 8. Hetzner notes
-- Excellent price / performance and EU locations (Germany, Finland) plus US and Singapore; ARM servers are cheaper still.
-- You run more yourself: Kubernetes control plane, Postgres, Redis, backups, monitoring, secrets. Weigh the ops time against the savings in the ADR; a common split is Hetzner for compute and self-run data with tested backups, Cloudflare in front for DNS / CDN / WAF, and an external error-tracking / observability SaaS.
+Facts for the architect when asked:
+- Strong price / performance; EU locations (Germany, Finland) plus US and Singapore; ARM servers are cheaper still.
+- Infrastructure primitives rather than platform services: whatever has no managed offer (Kubernetes control plane, Postgres, Redis, broker, secrets, monitoring) is run, patched, upgraded and backed up by you — state that operational cost next to the price difference.
+
+Implementation, once the architect chose Hetzner for a component:
 - Use the `hcloud` Terraform provider; firewalls on every server, private networks for internal traffic, no public SSH (bastion or a VPN such as WireGuard / Tailscale), snapshots and backups enabled, primary / floating IPs for stable endpoints.
 
 ## 9. Multi-cloud
-One primary cloud per system and environment set. Stay portable at the workload layer (OCI images, Helm / Kustomize, OpenTelemetry, Terraform modules with the same interface per provider); don't force lowest-common-denominator data services unless an NFR requires portability. Cross-cloud traffic costs egress — keep chatty components together.
+Which providers serve which components is the architect's decision. Implementation within it: stay portable at the workload layer (OCI images, Helm / Kustomize, OpenTelemetry, Terraform modules with the same interface per provider); use each provider's managed services where the design says so rather than a lowest-common-denominator layer. Report cross-cloud egress cost and latency to the architect when the design splits chatty components across providers.
